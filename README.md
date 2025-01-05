@@ -1,5 +1,3 @@
-Here's the README with properly formatted command lines and improved readability:
-
 # GUML - UML Generator
 
 GUML is a web application that generates UML diagrams from GitHub repository files using AI. It provides an intuitive interface for selecting repositories, files, and generating UML diagrams with ease.
