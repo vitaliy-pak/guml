@@ -72,10 +72,18 @@ This project is open-source and available under the [MIT License](LICENSE).
 
 ## Acknowledgements
 
-- [Next.js](https://nextjs.org/)
-- [React](https://reactjs.org/)
-- [Mantine](https://mantine.dev/)
-- [NextAuth.js](https://next-auth.js.org/)
-- [Mermaid.js](https://mermaid-js.github.io/mermaid/)
-- [Vercel AI SDK](https://sdk.vercel.ai/)
-- [Groq](https://groq.com/)
+Here's a one-sentence description for each technology:
+
+- [Next.js](https://nextjs.org/): A React framework for building server-side rendered and statically generated web applications.
+
+- [React](https://reactjs.org/): A JavaScript library for building user interfaces with reusable components.
+
+- [Mantine](https://mantine.dev/): A fully featured React component library for building modern web applications.
+
+- [NextAuth.js](https://next-auth.js.org/): An authentication library for Next.js applications supporting various providers.
+
+- [Mermaid.js](https://mermaid-js.github.io/mermaid/): A JavaScript-based diagramming and charting tool that renders diagrams from text definitions.
+
+- [Vercel AI SDK](https://sdk.vercel.ai/): A library for integrating AI models into web applications.
+
+- [Groq](https://groq.com/): A high-performance AI inference engine and cloud platform for executing large language models.
