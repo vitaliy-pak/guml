@@ -1,18 +1,10 @@
 'use client';
 import { Button } from '@mantine/core';
 import { signIn, signOut, useSession } from 'next-auth/react';
-import { useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React from "react";
 
 const AuthButtons = () => {
-    const { data: session, status } = useSession();
-    const { replace } = useRouter();
-
-    useEffect(() => {
-        if (status === 'authenticated') {
-            replace(`/uml`);
-        }
-    }, [replace, status]);
+    const {data: session} = useSession();
 
     return (
         <>
