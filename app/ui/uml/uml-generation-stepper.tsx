@@ -1,39 +1,56 @@
 'use client';
 import { useState } from 'react';
-import { Button, Group, Stepper } from '@mantine/core';
+import { Button, Group, Loader, Stepper } from '@mantine/core';
 import RepositorySelector from './repository-selector';
-import FileSelect from './file-selector';
+import FileSelector from './file-selector';
 import { Repository } from '../../types/repository';
 import { generateAIResponse } from "../../lib/ai";
-import { useRouter } from "next/navigation";
 import { fetchFiles } from "../../lib/github";
 import { useSession } from "next-auth/react";
+import UMLEditor from "./uml-editor";
+import { GitHubFile } from "../../types/github-file";
 
 const UMLGenerationStepper = ({repos}: { repos: Repository[] }) => {
     const [active, setActive] = useState(0);
+    const [umlText, setUMLText] = useState('');
     const [selectedRepoFullName, setSelectedRepoFullName] = useState<string | null>(null);
     const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
     const {data: session} = useSession();
+    const [loading, setLoading] = useState(false);
 
-    const nextStep = () => setActive((current) => (current < 2 ? current + 1 : current));
+    const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));
     const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
 
-    const handleGenerateUML = async() => {
+    const handleGenerateUML = async () => {
         if (!selectedRepoFullName || !session?.accessToken) {
             return;
         }
 
-        for (const file of selectedFiles) {
-            const response = await fetchFiles(selectedRepoFullName, session?.accessToken, file);
-            const content = atob(response.content);
+        try {
+            setLoading(true);
 
-            const prompt =  `Generate PlantUML format diagram for the following code:
-                //${file}
-                ${content}
-                Do not include any explanation or any additional text.
-            `
-            const plantUML = await generateAIResponse(prompt)
-            console.log(plantUML);
+            const fileContents: Record<string, string> = {};
+            for (const file of selectedFiles) {
+                const response = await fetchFiles(selectedRepoFullName, file) as GitHubFile;
+                fileContents[file] = atob(response.content || '');
+            }
+
+            const prompt = `Generate Mermaid format diagram for the following code files:\n\n` +
+                Object.entries(fileContents)
+                    .map(([file, content]) => `// ${file}\n${content}`)
+                    .join('\n\n') +
+                `\n\nThe output should not include additional text or explanation or comments from you`;
+
+            const mermaidUML = await generateAIResponse(prompt);
+
+            setUMLText(mermaidUML);
+
+            setLoading(false);
+
+            nextStep();
+        } catch (error) {
+            console.error('Error generating UML:', error);
+            setLoading(false);
         }
     }
 
@@ -53,23 +70,33 @@ const UMLGenerationStepper = ({repos}: { repos: Repository[] }) => {
                 </Stepper.Step>
                 <Stepper.Step label="Select Files" description="Select files for UML generation">
                     {selectedRepoFullName && (
-                        <FileSelect repoFullName={selectedRepoFullName} onSelect={setSelectedFiles}/>
+                        <FileSelector repoFullName={selectedRepoFullName} onSelect={setSelectedFiles}/>
                     )}
                 </Stepper.Step>
                 <Stepper.Step label="Generate UML" description="Generate UML diagrams">
-                    <Button onClick={handleGenerateUML}>
-                        Generate UML
-                    </Button>
+                    {
+                        loading ? <Loader size={80}/> :
+                            <Button onClick={handleGenerateUML}>
+                                Generate UML
+                            </Button>
+                    }
                 </Stepper.Step>
+                <Stepper.Completed>
+                    <UMLEditor umlText={umlText}/>
+                </Stepper.Completed>
             </Stepper>
 
             <Group mt="xl">
                 <Button variant="default" onClick={prevStep} disabled={active === 0}>
                     Back
                 </Button>
-                <Button onClick={nextStep}>
-                    {active === 2 ? 'Finish' : 'Next step'}
-                </Button>
+                {active < 2 ?
+                    <Button onClick={nextStep}>
+                        Next step
+                    </Button>
+                    : null
+                }
+
             </Group>
         </>
     );

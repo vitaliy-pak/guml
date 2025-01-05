@@ -13,8 +13,10 @@
     "@mantine/core": "7.15.2",
     "@mantine/hooks": "7.15.2",
     "@tabler/icons-react": "^3.26.0",
+    "@uiw/react-md-editor": "^4.0.5",
     "ai": "^4.0.26",
-    "next": "15.0.1",
+    "mermaid": "^11.4.1",
+    "next": "^15.1.2",
     "next-auth": "^4.24.11",
     "react": "18.3.1",
     "react-dom": "18.3.1"
@@ -29,6 +31,5 @@
     "postcss-preset-mantine": "1.17.0",
     "postcss-simple-vars": "^7.0.1",
     "typescript": "5.5.2"
-  },
-  "packageManager": "yarn@4.5.3"
+  }
 }

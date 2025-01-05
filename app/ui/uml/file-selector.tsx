@@ -1,19 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-    Checkbox,
-    getTreeExpandedState,
-    Group,
-    RenderTreeNodePayload,
-    ScrollArea,
-    Tree,
-    TreeNodeData,
-    useTree
-} from '@mantine/core';
+import { Checkbox, Group, Loader, RenderTreeNodePayload, ScrollArea, Tree, TreeNodeData, useTree } from '@mantine/core';
 import { IconChevronDown } from '@tabler/icons-react';
 import { fetchFiles } from "../../lib/github";
-import { useSession } from "next-auth/react";
+import { GitHubFile } from "../../types/github-file";
 
 interface FileSelectorProps {
     repoFullName: string;
@@ -24,53 +15,49 @@ const FileSelector = ({repoFullName, onSelect}: FileSelectorProps) => {
     const [treeData, setTreeData] = useState<TreeNodeData[]>([]);
     const tree = useTree({
         multiple: true,
-        initialExpandedState: getTreeExpandedState(treeData, '*'),
-        initialCheckedState: [],
     });
-    const {data: session} = useSession();
+    const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
+        const formatTreeData = async (data: GitHubFile[]): Promise<TreeNodeData[]> => {
+            const treeNodes: TreeNodeData[] = [];
+
+            for (const item of data) {
+                const node: TreeNodeData = {
+                    label: item.name,
+                    value: item.path,
+                    children: [],
+                };
+
+                if (item.type === 'dir') {
+                    const children = await fetchFiles(repoFullName, item.path) as GitHubFile[];
+                    node.children = await formatTreeData(children);
+                }
+
+                treeNodes.push(node);
+            }
+
+            return treeNodes;
+        };
+
         const fetchRepoFiles = async () => {
-            const data = session?.accessToken && await fetchFiles(repoFullName, session?.accessToken);
-            const formattedData = await formatTreeData(data);
+            const files = await fetchFiles(repoFullName) as GitHubFile[];
+            const formattedData = await formatTreeData(files);
             setTreeData(formattedData);
         };
 
-        repoFullName && fetchRepoFiles();
+        setLoading(true)
+        fetchRepoFiles().then(() => setLoading(false));
     }, [repoFullName]);
 
-    const formatTreeData = async (data: any[]): Promise<TreeNodeData[]> => {
-        const treeNodes: TreeNodeData[] = [];
-
-        for (const item of data) {
-            const node: TreeNodeData = {
-                label: item.name,
-                value: item.path,
-                children: [],
-            };
-
-            if (item.type === 'dir') {
-                const children = await fetchChildren(item.path);
-                node.children = await formatTreeData(children);
-            }
-
-            treeNodes.push(node);
-        }
-
-        return treeNodes;
-    };
-
-    const fetchChildren = async (path: string) => {
-        const response = await fetch(`https://api.github.com/repos/${repoFullName}/contents/${path}`);
-        if (!response.ok) {
-            throw new Error('Failed to fetch children');
-        }
-        return response.json();
-    };
 
     useEffect(() => {
-        onSelect(tree.selectedState);
-    }, [tree.selectedState]);
+        const selectedFiles = tree.selectedState.filter(path => {
+            return path.includes('.') && !path.endsWith('/');
+        });
+
+        onSelect(selectedFiles);
+    }, [onSelect, tree.selectedState]);
 
     const renderTreeNode = ({
                                 node,
@@ -82,19 +69,33 @@ const FileSelector = ({repoFullName, onSelect}: FileSelectorProps) => {
         const checked = tree.isNodeChecked(node.value);
         const indeterminate = tree.isNodeIndeterminate(node.value);
 
+        const toggleChildren = (children: TreeNodeData[]) => {
+            children.forEach((child) => {
+                tree.toggleSelected(child.value);
+
+                if (child.children) {
+                    toggleChildren(child.children);
+                }
+            });
+        }
+
         const handleCheck = () => {
+            const toggleSelected = () => {
+                tree.toggleSelected(node.value);
+                toggleChildren(node.children || []);
+            }
+
             if (!checked) {
                 tree.checkNode(node.value);
-                tree.toggleSelected(node.value);
-                node.children?.forEach(node => tree.toggleSelected(node.value));
+                toggleSelected();
             } else {
                 tree.uncheckNode(node.value);
-                tree.toggleSelected(node.value);
-                node.children?.forEach(node => tree.toggleSelected(node.value));
+                toggleSelected();
             }
         }
 
         return (
+
             <Group gap="xs" {...elementProps}>
                 <Checkbox.Indicator
                     checked={checked}
@@ -115,15 +116,16 @@ const FileSelector = ({repoFullName, onSelect}: FileSelectorProps) => {
     };
 
     return (
-        <ScrollArea h={300} w={300}>
-            <Tree
-                tree={tree}
-                data={treeData}
-                levelOffset={23}
-                expandOnClick={false}
-                renderNode={renderTreeNode}
-            />
-        </ScrollArea>
+        loading ? <Loader size={80}/> :
+            <ScrollArea h={300} w={300}>
+                <Tree
+                    tree={tree}
+                    data={treeData}
+                    levelOffset={23}
+                    expandOnClick={false}
+                    renderNode={renderTreeNode}
+                />
+            </ScrollArea>
     );
 };
 
