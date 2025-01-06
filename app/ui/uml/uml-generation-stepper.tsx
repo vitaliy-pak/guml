@@ -65,7 +65,7 @@ const UMLGenerationStepper = ({repos}: { repos: Repository[] }) => {
                     maxHeight: 600
                 }
             }}>
-                <Stepper.Step label="Select Repository" description="Select a repository">
+                <Stepper.Step label="Select Repository" description="Select a code repository">
                     <RepositorySelector repos={repos} onSelect={setSelectedRepoFullName}/>
                 </Stepper.Step>
                 <Stepper.Step label="Select Files" description="Select files for UML generation">
@@ -96,7 +96,6 @@ const UMLGenerationStepper = ({repos}: { repos: Repository[] }) => {
                     </Button>
                     : null
                 }
-
             </Group>
         </>
     );

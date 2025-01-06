@@ -7,7 +7,7 @@ import {
     Text
 } from "@mantine/core";
 import { theme } from "../theme";
-import AuthButtons from "./ui/auth/auth-buttons";
+import LogoutButton from "./ui/auth/logout-button";
 import AuthProvider from "./providers/auth-provider";
 
 export const metadata = {
@@ -38,7 +38,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
                             <Text size="xl" style={{fontWeight: 700}}>
                                 GUML
                             </Text>
-                            <AuthButtons/>
+                            <LogoutButton/>
                         </div>
                     </AppShellHeader>
                     <AppShellMain style={{
