@@ -9,14 +9,15 @@ import { fetchFiles } from "../../lib/github";
 import { useSession } from "next-auth/react";
 import UMLEditor from "./uml-editor";
 import { GitHubFile } from "../../types/github-file";
+import useFileStore from "../../store/file-store";
 
 const UMLGenerationStepper = ({repos}: { repos: Repository[] }) => {
     const [active, setActive] = useState(0);
     const [umlText, setUMLText] = useState('');
     const [selectedRepoFullName, setSelectedRepoFullName] = useState<string | null>(null);
-    const [selectedFiles, setSelectedFiles] = useState<string[]>([]);
     const {data: session} = useSession();
     const [loading, setLoading] = useState(false);
+    const {selectedFiles} = useFileStore();
 
     const nextStep = () => setActive((current) => (current < 3 ? current + 1 : current));
     const prevStep = () => setActive((current) => (current > 0 ? current - 1 : current));
@@ -70,7 +71,7 @@ const UMLGenerationStepper = ({repos}: { repos: Repository[] }) => {
                 </Stepper.Step>
                 <Stepper.Step label="Select Files" description="Select files for UML generation">
                     {selectedRepoFullName && (
-                        <FileSelector repoFullName={selectedRepoFullName} onSelect={setSelectedFiles}/>
+                        <FileSelector repoFullName={selectedRepoFullName} />
                     )}
                 </Stepper.Step>
                 <Stepper.Step label="Generate UML" description="Generate UML diagrams">

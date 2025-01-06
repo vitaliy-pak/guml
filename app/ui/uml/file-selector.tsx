@@ -5,20 +5,24 @@ import { Checkbox, Group, Loader, RenderTreeNodePayload, ScrollArea, Tree, TreeN
 import { IconChevronDown } from '@tabler/icons-react';
 import { fetchFiles } from "../../lib/github";
 import { GitHubFile } from "../../types/github-file";
+import useFileStore from "../../store/file-store";
 
 interface FileSelectorProps {
     repoFullName: string;
-    onSelect: (files: string[]) => void;
 }
 
-const FileSelector = ({repoFullName, onSelect}: FileSelectorProps) => {
-    const [treeData, setTreeData] = useState<TreeNodeData[]>([]);
+const FileSelector = ({repoFullName}: FileSelectorProps) => {
+    const {treeData, setTreeData, setSelectedFiles} = useFileStore();
     const tree = useTree({
         multiple: true,
     });
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
+        if (treeData.length > 0) {
+            return;
+        }
+
         const formatTreeData = async (data: GitHubFile[]): Promise<TreeNodeData[]> => {
             const treeNodes: TreeNodeData[] = [];
 
@@ -46,9 +50,10 @@ const FileSelector = ({repoFullName, onSelect}: FileSelectorProps) => {
             setTreeData(formattedData);
         };
 
+
         setLoading(true)
         fetchRepoFiles().then(() => setLoading(false));
-    }, [repoFullName]);
+    }, [repoFullName, setTreeData, treeData.length]);
 
 
     useEffect(() => {
@@ -56,8 +61,8 @@ const FileSelector = ({repoFullName, onSelect}: FileSelectorProps) => {
             return path.includes('.') && !path.endsWith('/');
         });
 
-        onSelect(selectedFiles);
-    }, [onSelect, tree.selectedState]);
+        setSelectedFiles(selectedFiles);
+    }, [setSelectedFiles, tree.selectedState]);
 
     const renderTreeNode = ({
                                 node,
