@@ -26,8 +26,12 @@ const UMLEditor = ({umlText}: { umlText: string }) => {
                 const mermaidContent = markdown.replace('```mermaid\n', '').replace('```', '');
                 mermaid.render('mermaid-diagram', mermaidContent).then((result) => {
                     if (mermaidRef.current) {
-                        mermaidRef.current.innerHTML = result.svg;
-                        setSvgContent(result.svg);
+                        const svgWithSize = result.svg.replace(
+                            /<svg /,
+                            '<svg style="max-height: 300px;"'
+                        );
+                        mermaidRef.current.innerHTML = svgWithSize;
+                        setSvgContent(svgWithSize);
                     }
                 });
             }
@@ -61,8 +65,8 @@ const UMLEditor = ({umlText}: { umlText: string }) => {
         }}>
             <MDEditor height={'50vh'} style={isMobile ? {} : {flex: 1}} preview={'preview'} value={markdown}
                       onChange={(value) => value && setMarkdown(value)}/>
-            <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1}}>
-                <div className={'mermaid'} ref={mermaidRef}>
+            <div style={{height:'50vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1}}>
+                <div className={'mermaid'} ref={mermaidRef}   style={{ maxWidth: '100%', maxHeight: '50vh', overflow: 'hidden' }}>
                 </div>
                 <div style={{display: 'flex', justifyContent: 'center', gap: 10}}>
                     <ActionIcon style={{border: 'none'}} variant={'default'} onClick={open}><IconMaximize/></ActionIcon>

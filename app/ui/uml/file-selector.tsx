@@ -6,16 +6,23 @@ import { IconChevronDown } from '@tabler/icons-react';
 import { fetchFiles } from "../../lib/github";
 import { GitHubFile } from "../../types/github-file";
 import useFileStore from "../../store/file-store";
+import useRepoStore from "../../store/repo-store";
 
-interface FileSelectorProps {
-    repoFullName: string;
-}
 
-const FileSelector = ({repoFullName}: FileSelectorProps) => {
-    const {treeData, setTreeData, setSelectedFiles} = useFileStore();
-    const tree = useTree({
-        multiple: true,
-    });
+const FileSelector = () => {
+    const {treeState, treeData, setTreeState, setTreeData, setSelectedFiles, addFileContent} = useFileStore();
+    const {selectedRepo} = useRepoStore();
+    const tree = useTree(
+        treeState ? {
+                multiple: treeState?.multiple,
+                initialSelectedState: treeState.selected,
+                initialCheckedState: treeState.checked,
+                initialExpandedState: treeState.expanded
+            } :
+            {
+                multiple: true,
+            }
+    );
     const [loading, setLoading] = useState<boolean>(false);
 
     useEffect(() => {
@@ -26,7 +33,7 @@ const FileSelector = ({repoFullName}: FileSelectorProps) => {
         const formatTreeData = async (data: GitHubFile[]): Promise<TreeNodeData[]> => {
             const treeNodes: TreeNodeData[] = [];
 
-            for (const item of data) {
+            const fetchChildrenPromises = data.map(async (item) => {
                 const node: TreeNodeData = {
                     label: item.name,
                     value: item.path,
@@ -34,18 +41,24 @@ const FileSelector = ({repoFullName}: FileSelectorProps) => {
                 };
 
                 if (item.type === 'dir') {
-                    const children = await fetchFiles(repoFullName, item.path) as GitHubFile[];
+                    const children = await fetchFiles(selectedRepo, item.path) as GitHubFile[];
                     node.children = await formatTreeData(children);
+                } else {
+                    const file = await fetchFiles(selectedRepo, item.path) as GitHubFile;
+                    addFileContent({[item.path]: atob(file.content || '')});
                 }
 
-                treeNodes.push(node);
-            }
+                return node;
+            });
+
+            const nodes = await Promise.all(fetchChildrenPromises);
+            treeNodes.push(...nodes);
 
             return treeNodes;
         };
 
         const fetchRepoFiles = async () => {
-            const files = await fetchFiles(repoFullName) as GitHubFile[];
+            const files = await fetchFiles(selectedRepo) as GitHubFile[];
             const formattedData = await formatTreeData(files);
             setTreeData(formattedData);
         };
@@ -53,7 +66,7 @@ const FileSelector = ({repoFullName}: FileSelectorProps) => {
 
         setLoading(true)
         fetchRepoFiles().then(() => setLoading(false));
-    }, [repoFullName, setTreeData, treeData.length]);
+    }, [addFileContent, selectedRepo, setTreeData, treeData.length]);
 
 
     useEffect(() => {
@@ -62,7 +75,13 @@ const FileSelector = ({repoFullName}: FileSelectorProps) => {
         });
 
         setSelectedFiles(selectedFiles);
-    }, [setSelectedFiles, tree.selectedState]);
+        setTreeState({
+            multiple: tree.multiple,
+            expanded: tree.expandedState,
+            checked: tree.checkedState,
+            selected: tree.selectedState
+        });
+    }, [setSelectedFiles, setTreeState, tree.checkedState, tree.expandedState, tree.multiple, tree.selectedState]);
 
     const renderTreeNode = ({
                                 node,
