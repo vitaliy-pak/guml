@@ -84,8 +84,8 @@ const UMLGenerationStepper = ({repos}: { repos: Repository[] }) => {
                 <Button variant="default" onClick={prevStep} disabled={active === 0}>
                     Back
                 </Button>
-                {active < 2 || umlText ?
-                    <Button onClick={nextStep}>
+                {active <= 2 ?
+                    <Button loading={loading} onClick={nextStep}>
                         Next step
                     </Button>
                     : null
