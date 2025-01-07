@@ -27,8 +27,8 @@ const UMLEditor = ({umlText}: { umlText: string }) => {
                 mermaid.render('mermaid-diagram', mermaidContent).then((result) => {
                     if (mermaidRef.current) {
                         const svgWithSize = result.svg.replace(
-                            /<svg style="/,
-                            '<svg style="max-height: 300px; '
+                            /style="/,
+                            'style="max-height: 300px; '
                         );
                         mermaidRef.current.innerHTML = svgWithSize;
                         setSvgContent(svgWithSize);
