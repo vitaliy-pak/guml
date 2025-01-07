@@ -14,7 +14,7 @@ const FileSelector = () => {
     const {selectedRepo} = useRepoStore();
     const tree = useTree(
         treeState ? {
-                multiple: treeState?.multiple,
+                multiple: treeState.multiple,
                 initialSelectedState: treeState.selected,
                 initialCheckedState: treeState.checked,
                 initialExpandedState: treeState.expanded
@@ -74,9 +74,8 @@ const FileSelector = () => {
             return path.includes('.') && !path.endsWith('/');
         });
 
-        console.log("selectedFiles", selectedFiles);
-
         setSelectedFiles(selectedFiles);
+
         setTreeState({
             multiple: tree.multiple,
             expanded: tree.expandedState,
@@ -84,9 +83,7 @@ const FileSelector = () => {
             selected: tree.selectedState
         });
 
-        console.log("treeState", treeState);
-
-    }, [setSelectedFiles, setTreeState, tree.checkedState, tree.expandedState, tree.multiple, tree.selectedState]);
+    }, [setSelectedFiles, setTreeState, tree]);
 
     const renderTreeNode = ({
                                 node,
@@ -98,28 +95,33 @@ const FileSelector = () => {
         const checked = tree.isNodeChecked(node.value);
         const indeterminate = tree.isNodeIndeterminate(node.value);
 
-        const toggleChildren = (children: TreeNodeData[]) => {
+        const toggleChildren = (children: TreeNodeData[], isChecking: boolean) => {
             children.forEach((child) => {
-                tree.toggleSelected(child.value);
+                if (isChecking) {
+                    tree.select(child.value);
+                } else {
+                    tree.deselect(child.value);
+                }
 
                 if (child.children) {
-                    toggleChildren(child.children);
+                    toggleChildren(child.children, isChecking);
                 }
             });
         }
 
         const handleCheck = () => {
-            const toggleSelected = () => {
-                tree.toggleSelected(node.value);
-                toggleChildren(node.children || []);
-            }
+            const isChecking = !checked;
 
-            if (!checked) {
+            if (isChecking) {
                 tree.checkNode(node.value);
-                toggleSelected();
+                tree.select(node.value);
             } else {
                 tree.uncheckNode(node.value);
-                toggleSelected();
+                tree.deselect(node.value);
+            }
+
+            if (node.children) {
+                toggleChildren(node.children, isChecking);
             }
         }
 
