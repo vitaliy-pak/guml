@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { ActionIcon, Modal } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
 import { IconDownload, IconMaximize, IconMinimize, IconMinus, IconPlus } from "@tabler/icons-react";
-import { theme } from "../../../theme";
+import { theme } from "@/theme";
 
 const UMLEditor = ({umlText}: { umlText: string }) => {
     const [markdown, setMarkdown] = useState(umlText);

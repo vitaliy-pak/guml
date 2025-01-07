@@ -14,9 +14,9 @@ export default function Page() {
 
     return (
         <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
-            <h1>Sign In</h1>
+            <h1>Sign in</h1>
             <Button leftSection={<IconBrandGithub/>} title={'Sign in with GitHub'} color={'black'}
-                    onClick={() => signIn('github')}>Sign in with GitHub</Button>
+                    onClick={async () => await signIn('github')}>Sign in with GitHub</Button>
         </div>
     );
 }

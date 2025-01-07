@@ -1,14 +1,15 @@
 'use client';
+
 import { useState } from 'react';
 import { Button, Group, Loader, Stepper } from '@mantine/core';
 import RepositorySelector from './repository-selector';
 import FileSelector from './file-selector';
-import { Repository } from '../../types/repository';
-import { generateAIResponse } from "../../lib/ai";
+import { Repository } from '@/app/types/repository';
+import { generateAIResponse } from "@/app/lib/ai";
 import { useSession } from "next-auth/react";
 import UMLEditor from "./uml-editor";
-import useFileStore from "../../store/file-store";
-import useRepoStore from "../../store/repo-store";
+import useFileStore from "@/app/store/file-store";
+import useRepoStore from "@/app/store/repo-store";
 
 const UMLGenerationStepper = ({repos}: { repos: Repository[] }) => {
     const [active, setActive] = useState(0);

@@ -1,4 +1,5 @@
 'use client';
+
 import { Button } from '@mantine/core';
 import { signOut, useSession } from 'next-auth/react';
 import React from "react";
@@ -9,8 +10,8 @@ const LogoutButton = () => {
     return (
         <>
             {session?.accessToken && (
-                <Button onClick={() => signOut()}>
-                    Sign Out
+                <Button onClick={async () => await signOut()}>
+                    Sign out
                 </Button>
             )}
         </>

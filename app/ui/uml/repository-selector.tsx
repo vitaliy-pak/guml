@@ -1,9 +1,10 @@
 'use client';
+
 import React from "react";
-import { Repository } from "../../types/repository";
+import { Repository } from "@/app/types/repository";
 import { Select } from '@mantine/core';
-import useRepoStore from "../../store/repo-store";
-import useFileStore from "../../store/file-store";
+import useRepoStore from "@/app/store/repo-store";
+import useFileStore from "@/app/store/file-store";
 
 interface RepositorySelectorProps {
     repos: Repository[];
