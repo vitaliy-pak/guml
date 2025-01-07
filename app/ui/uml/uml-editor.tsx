@@ -99,19 +99,23 @@ const UMLEditor = ({umlText}: { umlText: string }) => {
                 closeButtonProps={{
                     icon: <IconMinimize/>,
                 }}
+
             >
-                <div style={{transform: `scale(${scale})`, transformOrigin: 'top left'}} dangerouslySetInnerHTML={{
-                    __html: svgContent.replace(
-                        /style="max-height: 300px; /,
-                        'style="max-height: 100%; '
-                    )
-                }}/>
-                <div style={{position: 'fixed', bottom: 20, right: 20, display: 'flex', gap: 10, alignSelf: 'center'}}>
-                    <ActionIcon style={{border: 'none'}} variant={'default'}
-                                onClick={handleScaleUp}><IconPlus/></ActionIcon>
-                    <ActionIcon style={{border: 'none'}} variant={'default'}
-                                onClick={handleScaleDown}><IconMinus/></ActionIcon>
-                </div>
+                <Modal.Body style={{display: 'flex', justifyContent: 'center'}}>
+                    <div style={{transform: `scale(${scale})`, transformOrigin: 'center top'}}
+                         dangerouslySetInnerHTML={{
+                             __html: svgContent.replace(
+                                 /style="max-height: 300px; /,
+                                 'style="max-height: 100%; '
+                             )
+                         }}/>
+                    <div style={{position: 'fixed', bottom: 20, right: 20, display: 'flex', gap: 10}}>
+                        <ActionIcon style={{border: 'none'}} variant={'default'}
+                                    onClick={handleScaleUp}><IconPlus/></ActionIcon>
+                        <ActionIcon style={{border: 'none'}} variant={'default'}
+                                    onClick={handleScaleDown}><IconMinus/></ActionIcon>
+                    </div>
+                </Modal.Body>
             </Modal>
         </div>
     )
