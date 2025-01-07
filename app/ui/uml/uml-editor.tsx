@@ -86,7 +86,7 @@ const UMLEditor = ({umlText}: { umlText: string }) => {
             >
                 <div dangerouslySetInnerHTML={{__html: svgContent.replace(
                         /style="max-height: 300px; /,
-                        'style="max-height: 100%;'
+                        'style="max-height: 100vh'
                     )}}/>
             </Modal>
         </div>
