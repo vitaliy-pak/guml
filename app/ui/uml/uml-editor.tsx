@@ -84,7 +84,10 @@ const UMLEditor = ({umlText}: { umlText: string }) => {
                     icon: <IconMinimize/>,
                 }}
             >
-                <div dangerouslySetInnerHTML={{__html: svgContent}}/>
+                <div dangerouslySetInnerHTML={{__html: svgContent.replace(
+                        /style="max-height: 300px; /,
+                        'style="'
+                    )}}/>
             </Modal>
         </div>
     )
