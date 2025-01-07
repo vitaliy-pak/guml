@@ -74,6 +74,8 @@ const FileSelector = () => {
             return path.includes('.') && !path.endsWith('/');
         });
 
+        console.log("selectedFiles", selectedFiles);
+
         setSelectedFiles(selectedFiles);
         setTreeState({
             multiple: tree.multiple,
@@ -81,6 +83,9 @@ const FileSelector = () => {
             checked: tree.checkedState,
             selected: tree.selectedState
         });
+
+        console.log("treeState", treeState);
+
     }, [setSelectedFiles, setTreeState, tree.checkedState, tree.expandedState, tree.multiple, tree.selectedState]);
 
     const renderTreeNode = ({
