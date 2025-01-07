@@ -3,7 +3,7 @@ import mermaid from 'mermaid';
 import { useEffect, useRef, useState } from "react";
 import { ActionIcon, Modal } from "@mantine/core";
 import { useDisclosure, useMediaQuery } from "@mantine/hooks";
-import { IconDownload, IconMaximize, IconMinimize } from "@tabler/icons-react";
+import { IconDownload, IconMaximize, IconMinimize, IconMinus, IconPlus } from "@tabler/icons-react";
 import { theme } from "../../../theme";
 
 const UMLEditor = ({umlText}: { umlText: string }) => {
@@ -12,6 +12,7 @@ const UMLEditor = ({umlText}: { umlText: string }) => {
     const [svgContent, setSvgContent] = useState<string>('');
     const [opened, {open, close}] = useDisclosure(false);
     const isMobile = useMediaQuery(`(max-width: ${theme.breakpoints?.sm})`);
+    const [scale, setScale] = useState(1);
 
     useEffect(() => {
         mermaid.initialize({
@@ -56,6 +57,14 @@ const UMLEditor = ({umlText}: { umlText: string }) => {
         URL.revokeObjectURL(url);
     };
 
+    const handleScaleUp = () => {
+        setScale((prev) => prev + 0.1);
+    };
+
+    const handleScaleDown = () => {
+        setScale((prev) => Math.max(prev - 0.1, 0.1));
+    };
+
     return (
         <div style={{
             display: 'flex',
@@ -65,8 +74,15 @@ const UMLEditor = ({umlText}: { umlText: string }) => {
         }}>
             <MDEditor height={'50vh'} style={isMobile ? {} : {flex: 1}} preview={'preview'} value={markdown}
                       onChange={(value) => value && setMarkdown(value)}/>
-            <div style={{height:'50vh', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1}}>
-                <div className={'mermaid'} ref={mermaidRef}   style={{ maxWidth: '100%', maxHeight: '50vh', overflow: 'hidden' }}>
+            <div style={{
+                height: '50vh',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                flex: 1
+            }}>
+                <div className={'mermaid'} ref={mermaidRef}
+                     style={{maxWidth: '100%', maxHeight: '50vh', overflow: 'hidden'}}>
                 </div>
                 <div style={{display: 'flex', justifyContent: 'center', gap: 10}}>
                     <ActionIcon style={{border: 'none'}} variant={'default'} onClick={open}><IconMaximize/></ActionIcon>
@@ -84,10 +100,18 @@ const UMLEditor = ({umlText}: { umlText: string }) => {
                     icon: <IconMinimize/>,
                 }}
             >
-                <div dangerouslySetInnerHTML={{__html: svgContent.replace(
+                <div style={{transform: `scale(${scale})`, transformOrigin: 'top left'}} dangerouslySetInnerHTML={{
+                    __html: svgContent.replace(
                         /style="max-height: 300px; /,
-                        'style="max-height: 100vh'
-                    )}}/>
+                        'style="max-height: 100%; '
+                    )
+                }}/>
+                <div style={{position: 'fixed', bottom: 20, right: 20, display: 'flex', gap: 10, alignSelf: 'center'}}>
+                    <ActionIcon style={{border: 'none'}} variant={'default'}
+                                onClick={handleScaleUp}><IconPlus/></ActionIcon>
+                    <ActionIcon style={{border: 'none'}} variant={'default'}
+                                onClick={handleScaleDown}><IconMinus/></ActionIcon>
+                </div>
             </Modal>
         </div>
     )
