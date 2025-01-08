@@ -83,7 +83,7 @@ const FileSelector = () => {
             selected: tree.selectedState
         });
 
-    }, [setSelectedFiles, setTreeState, tree]);
+    }, [setSelectedFiles, setTreeState, tree.multiple, tree.expandedState, tree.checkedState, tree.selectedState]);
 
     const renderTreeNode = ({
                                 node,
